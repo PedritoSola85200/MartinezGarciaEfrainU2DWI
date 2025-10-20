@@ -14,3 +14,9 @@ function leerUsuarios($pdo) {
     $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);  
     return $usuarios; 
 }
+
+function actualizarUsuario($pdo, $id, $nuevo_nombre, $nuevo_correo) { 
+    $sql = "UPDATE usuarios SET nombre = ?, correo = ? WHERE id = ?";
+    $stmt = $pdo->prepare($sql);
+    return $stmt->execute([$nuevo_nombre, $nuevo_correo, $id]);
+}
