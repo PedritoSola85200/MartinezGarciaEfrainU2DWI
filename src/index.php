@@ -20,3 +20,9 @@ function actualizarUsuario($pdo, $id, $nuevo_nombre, $nuevo_correo) {
     $stmt = $pdo->prepare($sql);
     return $stmt->execute([$nuevo_nombre, $nuevo_correo, $id]);
 }
+
+function borrarUsuario($pdo, $id) {
+    $sql = "DELETE FROM usuarios WHERE id = ?";
+    $stmt = $pdo->prepare($sql);
+    return $stmt->execute([$id]);
+}
