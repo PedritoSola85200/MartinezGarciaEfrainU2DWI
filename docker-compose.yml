@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # --------------------------------
+  # 1. SERVICIO WEB (PHP + APACHE)
+  # --------------------------------
+  web:
+    # Usa el 'Dockerfile' que ya tienes para construir esta imagen
+    build: . 
+    container_name: Mi_app
+    
+    # Mapeo de puertos: '5000' en tu PC se conecta al puerto '80' del contenedor
+    ports:
+      - "5000:80" 
+      
+    # Mapeo de volumen (código): Tu carpeta 'src' se monta en la carpeta de Apache
+    volumes:
+      - ./src:/var/www/html/ 
+      
+    # El servicio 'db' debe arrancar primero
+    depends_on:
+      db: #
+        condition: service_healthy 
+      
+    # Variables que tu código PHP usará para conectarse a la BD
+    environment:
+      DB_HOST: db              
+      DB_USER: root
+      DB_PASSWORD: '123' 
+      DB_NAME: Mi_app
+      
+  # --------------------------------
+  # 2. SERVIDOR DE BASE DE DATOS (MYSQL)
+  # --------------------------------
+  db:
+    # Usamos la imagen oficial de MySQL
+    image: mysql:8.0 
+    container_name: mi_base_de_datos
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123"]
+      interval: 5s
+      timeout: 20s
+      retries: 10
+    
+    # Variables para inicializar la base de datos y el usuario
+    environment:
+      MYSQL_ROOT_PASSWORD: '123' 
+      MYSQL_DATABASE: Mi_app
+
+      
+    # 3. PERSISTENCIA DE DATOS: Montar un volumen
+    volumes:
+      - mysql_data:/var/lib/mysql # Guarda los datos de MySQL en el volumen 'mysql_data'
+
+# 4. DEFINICIÓN DEL VOLUMEN PERSISTENTE
+volumes:
+  mysql_data: #
+    driver: local
+    # Docker se encarga de gestionar dónde se guardan estos datos en tu PC
